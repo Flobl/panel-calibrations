@@ -128,8 +128,8 @@ calib_smooth_plot_0.4
 ggsave('calib_match_smooth.png', width = 6, height = 4.5, dpi = 600)
 
 # Create a matrix to store smoothed reflectance curve
-calib_smooth_mat <- matrix(c(calib_df$wvl, round(calib_df$`0.4`, 4)), byrow = F, ncol = 2, nrow = nrow(calib_df))
-smooth_file_name <- paste0('SRS-99-010-', panel_id, '-', calibration_date, '.calib')
+calib_smooth_mat <- matrix(c(calib_df$wvl, signif(calib_df$`0.4`, 4)), byrow = F, ncol = 2, nrow = nrow(calib_df))
+ssmooth_file_name <- paste0('SRS-99-010-', panel_id, '-', calibration_date, '.calib')
 
 # save a new calib file to google drive
 write.table(file = smooth_file_name,
