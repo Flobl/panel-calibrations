@@ -1,6 +1,6 @@
 # Initial calibration of Spectralon disk
-# Panel 99AA02-0318-9710
-# Laboratory reference disk (used to calibrate other disks)
+# Panel 99AA05-0518-0226
+# Sphere S/N 402 reference disk (replacement 2018)
 
 # Load libraries
 library(googledrive)
@@ -8,8 +8,8 @@ library(tidyverse)
 library(spectrolab)
 
 # Panel ID
-panel_id <- '99AA02-0318-9710'
-calibration_date <- '2018-04-10'
+panel_id <- '99AA05-0518-0226'
+calibration_date <- '2018-06-27'
   
 # default working directory
 default_wd <- getwd()
@@ -26,12 +26,6 @@ calib_raw <- read.table(file_name) %>%
   as_tibble() %>% 
   rename(wvl = V1, refl = V2)
   
-# remove six really high values >.997
-calib_raw2 <- filter(calib_raw, refl < 0.997)
-
-# subset of data with refl > 0.997
-calib_sub <- filter(calib, refl >= 0.997)
-
 # Plot the original data
 calib_raw_plot <- ggplot(calib_raw, aes(x = wvl, y = refl)) +
   geom_line() +
@@ -49,15 +43,16 @@ calib_raw_plot +
   coord_cartesian(xlim = c(850, 875))
 
 # Convert data to wide format
-calib_raw_wide <- calib_raw2 %>% 
+calib_raw_wide <- calib_raw %>% 
   spread(key = wvl, value = refl) %>% 
-  mutate(SN = 'SRS-99-010-99AA02-0318-9710')
+  mutate(SN = paste0('SRS-99-010-', panel_id)) %>% 
+  as.data.frame()
 calib_raw_spectra <- as.spectra(calib_raw_wide, name_idx = ncol(calib_raw_wide))                    
 plot(calib_raw_spectra)
 
 # Match sensors
 calib_match <- match_sensors(calib_raw_spectra, splice_at = 860,
-                             interpolate_wvl = 100)
+                             interpolate_wvl = 50)
 plot(calib_match)
 
 # Convert to data frame
@@ -66,21 +61,19 @@ calib_match_df <- as.data.frame(calib_match) %>%
   select(-sample_name) %>% 
   gather(key = wvl, value = refl) %>% 
   mutate(wvl = as.integer(wvl)) %>% 
-  bind_rows(calib_sub) %>% 
   rename(refl_match = refl) %>% 
   arrange(wvl)
  
 
 # Resample to 1-nm and smooth
-wvls <- 250:2500
-calib_smooth_0.1 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.1)
-calib_smooth_0.2 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.2)
-calib_smooth_0.3 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.3)
-calib_smooth_0.4 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.4)
-calib_smooth_0.5 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.5)
-calib_smooth_0.6 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.6)
-calib_smooth_0.7 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.7)
-calib_smooth_0.8 <- spectrolab::resample(calib_match, new_wvls = wvls, spar = 0.8)
+calib_smooth_0.1 <- smooth(calib_match, spar = 0.1)
+calib_smooth_0.2 <- smooth(calib_match, spar = 0.2)
+calib_smooth_0.3 <- smooth(calib_match, spar = 0.3)
+calib_smooth_0.4 <- smooth(calib_match, spar = 0.4)
+calib_smooth_0.5 <- smooth(calib_match, spar = 0.5)
+calib_smooth_0.6 <- smooth(calib_match, spar = 0.6)
+calib_smooth_0.7 <- smooth(calib_match, spar = 0.7)
+calib_smooth_0.8 <- smooth(calib_match, spar = 0.8)
 
 # Combine smoothed spectra
 calib_comb <- combine(calib_smooth_0.1,
@@ -111,25 +104,29 @@ calib_smooth_plot <- ggplot(calib_df, aes(x = wvl, y = refl_raw)) +
   geom_line(colour = 'black') +
   geom_line(aes(y = refl_match), colour = 'blue') +
   geom_line(aes(y = `0.5`), colour = 'red') +
-  geom_line(aes(y = `0.4`), colour = 'green') +
-  geom_line(aes(y = `0.3`), colour = 'orange')
+  geom_line(aes(y = `0.6`), colour = 'green') +
+  geom_line(aes(y = `0.7`), colour = 'orange') +
+  ylab('Reflectance') +
+  xlab('Wavelength (nm)')
 calib_smooth_plot
 
 # Zoom in
 calib_smooth_plot +
   coord_cartesian(xlim = c(250, 500))
 
-# 0.4 seems best
-calib_smooth_plot_0.4 <- ggplot(calib_df, aes(x = wvl, y = refl_raw)) +
+# 0.5 seems best
+calib_smooth_plot_0.5 <- ggplot(calib_df, aes(x = wvl, y = refl_raw)) +
   geom_line(colour = 'black') +
   geom_line(aes(y = refl_match), colour = 'blue') +
-  geom_line(aes(y = `0.4`), colour = 'orange')
-calib_smooth_plot_0.4
+  geom_line(aes(y = `0.5`), colour = 'orange') +
+  ylab('Reflectance') +
+  xlab('Wavelength (nm)')
+calib_smooth_plot_0.5
 ggsave('calib_match_smooth.png', width = 6, height = 4.5, dpi = 600)
 
 # Create a matrix to store smoothed reflectance curve
-calib_smooth_mat <- matrix(c(calib_df$wvl, signif(calib_df$`0.4`, 4)), byrow = F, ncol = 2, nrow = nrow(calib_df))
-ssmooth_file_name <- paste0('SRS-99-010-', panel_id, '-', calibration_date, '.calib')
+calib_smooth_mat <- matrix(c(calib_df$wvl, signif(calib_df$`0.5`, 4)), byrow = F, ncol = 2, nrow = nrow(calib_df))
+smooth_file_name <- paste0('SRS-99-010-', panel_id, '-', calibration_date, '.calib')
 
 # save a new calib file to google drive
 write.table(file = smooth_file_name,
@@ -143,3 +140,4 @@ write.table(file = smooth_file_name,
 parent_path <- '/CABO/DATA/SPECTROSCOPY/PANELS/'
 path_name <- paste0(parent_path, panel_id, '/', calibration_date, '/')
 drive_upload(smooth_file_name, path = path_name)
+drive_upload('calib_match_smooth.png', path = path_name)
