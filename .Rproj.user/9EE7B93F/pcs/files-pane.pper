@@ -1,0 +1,13 @@
+{
+    "path" : "~/Documents/GitHub/panel-calibrations/panels/99AA02-0318-9712/2018-11-19",
+    "sortOrder" : [
+        {
+            "ascending" : false,
+            "columnIndex" : 4
+        },
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
