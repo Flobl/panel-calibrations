@@ -1,0 +1,56 @@
+﻿Matériel/date:                Pré-nettoyage 🗹                Post-nettoyage ☐
+
+
+
+
+Spectralon à calibrer:        Spectralon référence:        Sphère:                        Spectromètre:                Date:                Spectres/fichiers:                Tech:
+99AA02-0318-9712(red)        99AA02-0318-9710        402-Red                2092-Red                        9 août 2019        gr080919_0000 à gr080919_0069        Madeleine
+
+
+
+
+===============================================================
+MESURES POST-NETTOYAGE
+
+
+
+
+Méthode:
+1. Reference sur spectralon de référence (99AA02-0318-9710) dans port de reflectance avec spectralon à calibrer (99AA02-0318-9711) 
+        dans port de transmittance 
+2. Target sur spectralon de référence (multiple target scan x5 // right-click sur bouton "Target")
+        avec spectralon à calibrer (9711) dans port de transmittance
+3. Mesure de stray light avec spectralon de référence (9710) dans port de transmittance et rien (ligh-trap) dans port de reflectance
+        (multiple target scan x5 // right-click sur bouton "Target")
+4. Target sur spectralon usé/à calibrer (9711) dans port de reflectance (multiple target scan x5 // right-click sur bouton "Target")
+        avec spectralon de référence (9710) dans port de transmittance
+
+
+
+
+Répéter les étapes 2 et 4 en alternance 5 autres fois puis terminer avec une dernière étape 2 sans faire l'étape 4 subséquente.
+
+
+
+
+1-2-3-4-2-4-2-4-2-4-2-4-2-4-2
+
+
+
+
+Exemple de fichiers:¸
+
+
+
+
+[reference sur spectralon référence]
+gr111218_0000 à 0004 --> multiple-target sur spectralon référence
+gr111218_0005 à 0009 --> multiple-target sur light-trap pour mesurer le stray light
+gr111218_0010 à 0014 --> multiple-target sur spectralon usé/à calibrer
+[2ème série]
+gr111218_0015 à 0019 --> multiple-target sur spectralon référence
+gr111218_0020 à 0024 --> multiple-target sur spectralon usé/à calibrer
+[3ème série]
+gr111218_0025 à 0029 --> multiple-target sur spectralon référence
+gr111218_0030 à 0034 --> multiple-target sur spectralon usé/à calibrer
+etc.
